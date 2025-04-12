@@ -1,50 +1,53 @@
-# Welcome to your Expo app 👋
+# expo-location reverseGeocodeAsync Bug Demo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This project demonstrates an issue with the `reverseGeocodeAsync` method in expo-location using TypeScript.
 
-## Get started
+## Setup
 
-1. Install dependencies
-
+1. Clone this repository
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. Start the Expo development server:
    ```bash
-    npx expo start
+   npx expo start
    ```
+4. Open the app on your iOS or Android device using the Expo Go app
 
-In the output, you'll find options to open the app in a
+## Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+This is a TypeScript project with the following structure:
+- `App.tsx` - Main application component
+- `styles.ts` - Strongly typed styles using StyleSheet
+- Custom type definitions for better TypeScript integration
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Reproducing the Bug
 
-## Get a fresh project
+1. Launch the app
+2. Allow location permissions when prompted
+3. The app will display your current location on the map
+4. You can tap anywhere on the map to set a new location
+5. Tap the "Reverse Geocode (Reproduce Bug)" button
+6. Observe the error that occurs
 
-When you're ready, run:
+## Expected Behavior
 
-```bash
-npm run reset-project
-```
+The `reverseGeocodeAsync` method should return address information for the given coordinates.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Actual Behavior
 
-## Learn more
+Android: The method fails with an error or returns unexpected results.
+iOS: The method succeeds and displays the reverse geocoded address.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Technical Details
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Expo SDK Version: 52
+- React Native Version: 0.76.9
+- expo-location Version: 18.0.10
+- react-native-maps Version: 1.18.0
+- TypeScript Version: 5.1.3
 
-## Join the community
+## Console Output
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Check the console output in the Expo development tools for detailed error information. The app will also display errors directly on screen and provide an alert with the full error stack trace for debugging.
