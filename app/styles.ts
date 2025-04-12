@@ -1,9 +1,51 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, TextStyle, ViewStyle, ImageStyle } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+// Define theme types
+type ThemeColors = {
+  background: string;
+  primary: string;
+  text: {
+    primary: string;
+    secondary: string;
+    placeholder: string;
+    dark: string;
+  };
+  input: {
+    background: string;
+    border: string;
+  };
+  button: {
+    primary: string;
+    text: string;
+  };
+  border: string;
+  error: string;
+};
+
+type BorderRadius = {
+  sm: number;
+  md: number;
+  lg: number;
+};
+
+type Theme = {
+  colors: ThemeColors;
+  borderRadius: BorderRadius;
+};
+
+// Define spacing type
+type Spacing = {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+};
+
 // Theme colors based on your uploaded theme.js
-const theme = {
+const theme: Theme = {
   colors: {
     background: "#191919",
     primary: "#F7FF4D", // yellow
@@ -32,7 +74,7 @@ const theme = {
 };
 
 // Responsive spacing
-const spacing = {
+const spacing: Spacing = {
   xs: height * 0.01,
   sm: height * 0.02,
   md: height * 0.03,
@@ -40,13 +82,34 @@ const spacing = {
   xl: height * 0.05,
 };
 
-export const styles = StyleSheet.create({
+// Define our style types
+type StylesType = {
+  container: ViewStyle;
+  mapContainer: ViewStyle;
+  map: ViewStyle;
+  loadingContainer: ViewStyle;
+  controlsContainer: ViewStyle;
+  coordinatesText: TextStyle;
+  buttonText: TextStyle;
+  errorText: TextStyle;
+  button: ViewStyle;
+  buttonDisabled: ViewStyle;
+  addressContainer: ViewStyle;
+  addressItem: ViewStyle;
+  addressTitle: TextStyle;
+  addressText: TextStyle;
+  spinner: ViewStyle;
+  header: ViewStyle;
+  headerText: TextStyle;
+};
+
+export const styles = StyleSheet.create<StylesType>({
   // Main container
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  
+
   // Map container
   mapContainer: {
     height: '50%',
@@ -59,20 +122,20 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  
+
   // Loading container
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: theme.colors.background,
   },
-  
+
   // Controls section
   controlsContainer: {
     flex: 1,
     padding: spacing.md,
   },
-  
+
   // Text styles
   coordinatesText: {
     fontSize: 16,
@@ -90,7 +153,7 @@ export const styles = StyleSheet.create({
     marginTop: spacing.sm,
     fontSize: 14,
   },
-  
+
   // Button styles
   button: {
     backgroundColor: theme.colors.button.primary,
@@ -104,7 +167,7 @@ export const styles = StyleSheet.create({
   buttonDisabled: {
     backgroundColor: '#555555',
   },
-  
+
   // Address results
   addressContainer: {
     marginTop: spacing.md,
@@ -129,13 +192,12 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     color: theme.colors.text.secondary,
   },
-  
+
   // Activity indicator
   spinner: {
     marginTop: spacing.sm,
-    color: theme.colors.primary,
   },
-  
+
   // Header
   header: {
     backgroundColor: theme.colors.background,

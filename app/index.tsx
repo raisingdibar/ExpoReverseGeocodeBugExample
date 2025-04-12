@@ -1,16 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, ActivityIndicator, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, Alert } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { styles } from './styles';
 
-export default function App() {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [address, setAddress] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reverseGeocodingError, setReverseGeocodingError] = useState(null);
-  const mapRef = useRef(null);
+// Define types for location and address data
+type LocationObject = {
+  coords: {
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number | null;
+    altitudeAccuracy: number | null;
+    heading: number | null;
+    speed: number | null;
+  };
+  timestamp: number;
+};
+
+// Use the correct type from expo-location
+type AddressComponent = Location.LocationGeocodedAddress;
+
+export default function App(): React.ReactElement {
+  const [location, setLocation] = useState<LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [address, setAddress] = useState<AddressComponent[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [reverseGeocodingError, setReverseGeocodingError] = useState<string | null>(null);
+  const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -27,16 +44,28 @@ export default function App() {
         let currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Highest,
         });
-        setLocation(currentLocation);
+        setLocation({
+          coords: {
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+            altitude: currentLocation.coords.altitude,
+            accuracy: currentLocation.coords.accuracy,
+            altitudeAccuracy: currentLocation.coords.altitudeAccuracy,
+            heading: currentLocation.coords.heading,
+            speed: currentLocation.coords.speed,
+          },
+          timestamp: currentLocation.timestamp
+        });
         setIsLoading(false);
       } catch (error) {
-        setErrorMsg(`Error getting location: ${error.message}`);
+        const err = error as Error;
+        setErrorMsg(`Error getting location: ${err.message}`);
         setIsLoading(false);
       }
     })();
   }, []);
 
-  const handleReverseGeocode = async () => {
+  const handleReverseGeocode = async (): Promise<void> => {
     if (!location) {
       setReverseGeocodingError('No location available');
       return;
@@ -45,37 +74,38 @@ export default function App() {
     try {
       setIsLoading(true);
       setReverseGeocodingError(null);
-      
+
       console.log('Attempting to reverse geocode coordinates:', {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
-      
+
       // This is where the bug should occur
       const result = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
-      
+
       console.log('Reverse geocode result:', JSON.stringify(result, null, 2));
-      
+
       setAddress(result);
       setIsLoading(false);
     } catch (error) {
-      console.error('Reverse geocoding error:', error);
-      setReverseGeocodingError(`Reverse geocoding failed: ${error.message}`);
+      const err = error as Error;
+      console.error('Reverse geocoding error:', err);
+      setReverseGeocodingError(`Reverse geocoding failed: ${err.message}`);
       setIsLoading(false);
-      
+
       // Show alert with error details
       Alert.alert(
         'Geocoding Error',
-        `Error: ${error.message}\n\nStack: ${error.stack || 'No stack available'}`,
+        `Error: ${err.message}\n\nStack: ${err.stack || 'No stack available'}`,
         [{ text: 'OK' }]
       );
     }
   };
 
-  const handleMapPress = async (event) => {
+  const handleMapPress = async (event: MapPressEvent): Promise<void> => {
     try {
       const { coordinate } = event.nativeEvent;
       setLocation({
@@ -90,22 +120,23 @@ export default function App() {
         },
         timestamp: new Date().getTime()
       });
-      
+
       // Clear previous address when selecting a new location
       setAddress(null);
     } catch (error) {
-      console.error('Error handling map press:', error);
+      const err = error as Error;
+      console.error('Error handling map press:', err);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <View style={styles.header}>
         <Text style={styles.headerText}>expo-location Bug Demo</Text>
       </View>
-      
+
       <View style={styles.mapContainer}>
         {location ? (
           <MapView
@@ -145,7 +176,7 @@ export default function App() {
             ? `Latitude: ${location.coords.latitude.toFixed(6)}\nLongitude: ${location.coords.longitude.toFixed(6)}`
             : "No coordinates available"}
         </Text>
-        
+
         <TouchableOpacity
           style={[styles.button, (!location || isLoading) && styles.buttonDisabled]}
           onPress={handleReverseGeocode}
@@ -153,9 +184,9 @@ export default function App() {
         >
           <Text style={styles.buttonText}>Reverse Geocode (Reproduce Bug)</Text>
         </TouchableOpacity>
-        
+
         {isLoading && <ActivityIndicator style={styles.spinner} size="small" color="#F7FF4D" />}
-        
+
         {reverseGeocodingError && (
           <Text style={styles.errorText}>{reverseGeocodingError}</Text>
         )}
@@ -167,7 +198,7 @@ export default function App() {
                 <Text style={styles.addressTitle}>Result {index + 1}</Text>
                 {Object.entries(item).map(([key, value]) => (
                   <Text key={key} style={styles.addressText}>
-                    {key}: {value || 'N/A'}
+                    {key}: {value !== null ? String(value) : 'N/A'}
                   </Text>
                 ))}
               </View>
