@@ -8,8 +8,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint",
-    "tsc": "tsc --noEmit"
+    "lint": "expo lint"
   },
   "jest": {
     "preset": "jest-expo"
@@ -17,9 +16,9 @@
   "dependencies": {
     "expo": "~52.0.0",
     "expo-linking": "~7.0.5",
+    "expo-location": "~18.0.10",
     "expo-router": "~4.0.20",
     "expo-splash-screen": "~0.29.22",
-    "expo-location": "~18.0.10",
     "expo-status-bar": "~2.0.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
