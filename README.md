@@ -25,11 +25,10 @@ This is a TypeScript project with the following structure:
 ## Reproducing the Bug
 
 1. Launch the app
-2. Allow location permissions when prompted
-3. The app will display your current location on the map
-4. You can tap anywhere on the map to set a new location
-5. Tap the "Reverse Geocode (Reproduce Bug)" button
-6. Observe the error that occurs
+2. You'll see three hardcoded locations (San Francisco, New York, and Tokyo)
+3. Select a location by tapping on its button
+4. Tap the "Reverse Geocode (Reproduce Bug)" button
+5. Observe the error that occurs
 
 ## Expected Behavior
 
@@ -45,7 +44,6 @@ iOS: The method succeeds and displays the reverse geocoded address.
 - Expo SDK Version: 52
 - React Native Version: 0.76.9
 - expo-location Version: 18.0.10
-- react-native-maps Version: 1.18.0
 - TypeScript Version: 5.1.3
 
 ## Console Output
