@@ -85,13 +85,22 @@ const spacing: Spacing = {
 // Define our style types
 type StylesType = {
   container: ViewStyle;
-  mapContainer: ViewStyle;
-  map: ViewStyle;
+  locationContainer: ViewStyle;
+  coordinatesCard: ViewStyle;
+  locationButtonsContainer: ViewStyle;
+  locationButton: ViewStyle;
+  locationButtonActive: ViewStyle;
+  locationButtonText: TextStyle;
+  locationButtonTextActive: TextStyle;
   loadingContainer: ViewStyle;
-  controlsContainer: ViewStyle;
+  loadingText: TextStyle;
   coordinatesText: TextStyle;
+  coordinateLabel: TextStyle;
+  coordinateValue: TextStyle;
   buttonText: TextStyle;
   errorText: TextStyle;
+  errorContainer: ViewStyle;
+  sectionTitle: TextStyle;
   button: ViewStyle;
   buttonDisabled: ViewStyle;
   addressContainer: ViewStyle;
@@ -110,38 +119,74 @@ export const styles = StyleSheet.create<StylesType>({
     backgroundColor: theme.colors.background,
   },
 
-  // Map container
-  mapContainer: {
-    height: '50%',
-    width: '100%',
-    overflow: 'hidden',
-    borderBottomWidth: 2,
-    borderBottomColor: theme.colors.primary,
+  // Location container (replaces map container)
+  locationContainer: {
+    flex: 1,
+    padding: spacing.md,
   },
-  map: {
-    width: '100%',
-    height: '100%',
+
+  // Coordinates card
+  coordinatesCard: {
+    backgroundColor: theme.colors.input.background,
+    borderRadius: theme.borderRadius.sm,
+    padding: spacing.md,
+    marginVertical: spacing.md,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary,
+  },
+
+  // Location buttons
+  locationButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  locationButton: {
+    backgroundColor: theme.colors.input.background,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: theme.borderRadius.sm,
+    flex: 1,
+    marginHorizontal: spacing.xs / 2,
+    alignItems: 'center',
+  },
+  locationButtonActive: {
+    backgroundColor: theme.colors.primary,
+  },
+  locationButtonText: {
+    color: theme.colors.text.primary,
+    fontWeight: 'bold',
+  },
+  locationButtonTextActive: {
+    color: theme.colors.text.dark,
   },
 
   // Loading container
   loadingContainer: {
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
+    justifyContent: 'center',
+    marginVertical: spacing.md,
   },
-
-  // Controls section
-  controlsContainer: {
-    flex: 1,
-    padding: spacing.md,
+  loadingText: {
+    color: theme.colors.primary,
+    marginTop: spacing.sm,
+    fontSize: 14,
   },
 
   // Text styles
   coordinatesText: {
     fontSize: 16,
-    marginBottom: spacing.md,
-    fontWeight: 'bold',
+    lineHeight: 24,
     color: theme.colors.text.primary,
+  },
+  coordinateLabel: {
+    color: theme.colors.text.secondary,
+    fontWeight: 'normal',
+  },
+  coordinateValue: {
+    color: theme.colors.primary,
+    fontWeight: 'bold',
   },
   buttonText: {
     color: theme.colors.button.text,
@@ -152,6 +197,20 @@ export const styles = StyleSheet.create<StylesType>({
     color: theme.colors.error,
     marginTop: spacing.sm,
     fontSize: 14,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255, 77, 77, 0.1)',
+    padding: spacing.sm,
+    borderRadius: theme.borderRadius.sm,
+    marginVertical: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.error,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginVertical: spacing.sm,
   },
 
   // Button styles

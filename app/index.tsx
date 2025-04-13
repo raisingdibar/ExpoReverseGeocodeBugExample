@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, ActivityIndicator, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, Alert } from 'react-native';
-import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { styles } from './styles';
 
@@ -27,43 +26,61 @@ export default function App(): React.ReactElement {
   const [address, setAddress] = useState<AddressComponent[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [reverseGeocodingError, setReverseGeocodingError] = useState<string | null>(null);
-  const mapRef = useRef<MapView | null>(null);
+
+  // Hardcoded locations to test
+  const hardcodedLocations = [
+    {
+      name: "San Francisco",
+      coords: {
+        latitude: 37.7749,
+        longitude: -122.4194
+      }
+    },
+    {
+      name: "New York",
+      coords: {
+        latitude: 40.7128,
+        longitude: -74.0060
+      }
+    },
+    {
+      name: "Tokyo",
+      coords: {
+        latitude: 35.6762,
+        longitude: 139.6503
+      }
+    }
+  ];
+
+  // Current selected location index
+  const [currentLocationIndex, setCurrentLocationIndex] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      try {
-        // Request location permissions
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setErrorMsg('Permission to access location was denied');
-          return;
-        }
-
-        setIsLoading(true);
-        // Get current location
-        let currentLocation = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Highest,
-        });
-        setLocation({
-          coords: {
-            latitude: currentLocation.coords.latitude,
-            longitude: currentLocation.coords.longitude,
-            altitude: currentLocation.coords.altitude,
-            accuracy: currentLocation.coords.accuracy,
-            altitudeAccuracy: currentLocation.coords.altitudeAccuracy,
-            heading: currentLocation.coords.heading,
-            speed: currentLocation.coords.speed,
-          },
-          timestamp: currentLocation.timestamp
-        });
-        setIsLoading(false);
-      } catch (error) {
-        const err = error as Error;
-        setErrorMsg(`Error getting location: ${err.message}`);
-        setIsLoading(false);
-      }
-    })();
+    // Initialize with the first hardcoded location
+    setHardcodedLocation(0);
   }, []);
+
+  const setHardcodedLocation = (index: number): void => {
+    setCurrentLocationIndex(index);
+    const selected = hardcodedLocations[index];
+
+    setLocation({
+      coords: {
+        latitude: selected.coords.latitude,
+        longitude: selected.coords.longitude,
+        altitude: 0,
+        accuracy: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        speed: 0
+      },
+      timestamp: new Date().getTime()
+    });
+
+    // Clear any previous address when changing location
+    setAddress(null);
+    setReverseGeocodingError(null);
+  };
 
   const handleReverseGeocode = async (): Promise<void> => {
     if (!location) {
@@ -105,30 +122,6 @@ export default function App(): React.ReactElement {
     }
   };
 
-  const handleMapPress = async (event: MapPressEvent): Promise<void> => {
-    try {
-      const { coordinate } = event.nativeEvent;
-      setLocation({
-        coords: {
-          latitude: coordinate.latitude,
-          longitude: coordinate.longitude,
-          altitude: 0,
-          accuracy: 0,
-          altitudeAccuracy: 0,
-          heading: 0,
-          speed: 0
-        },
-        timestamp: new Date().getTime()
-      });
-
-      // Clear previous address when selecting a new location
-      setAddress(null);
-    } catch (error) {
-      const err = error as Error;
-      console.error('Error handling map press:', err);
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -137,45 +130,49 @@ export default function App(): React.ReactElement {
         <Text style={styles.headerText}>expo-location Bug Demo</Text>
       </View>
 
-      <View style={styles.mapContainer}>
-        {location ? (
-          <MapView
-            ref={mapRef}
-            style={styles.map}
-            initialRegion={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              latitudeDelta: 0.005,
-              longitudeDelta: 0.005,
-            }}
-            onPress={handleMapPress}
-          >
-            <Marker
-              coordinate={{
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }}
-              title="Selected Location"
-              pinColor="#F7FF4D"
-            />
-          </MapView>
-        ) : (
-          <View style={[styles.map, styles.loadingContainer]}>
-            {isLoading ? (
-              <ActivityIndicator size="large" color="#F7FF4D" />
-            ) : (
-              <Text style={styles.errorText}>{errorMsg || "Waiting for location..."}</Text>
-            )}
-          </View>
-        )}
-      </View>
+      <View style={styles.locationContainer}>
+        <Text style={styles.sectionTitle}>Test Locations:</Text>
 
-      <View style={styles.controlsContainer}>
-        <Text style={styles.coordinatesText}>
-          {location
-            ? `Latitude: ${location.coords.latitude.toFixed(6)}\nLongitude: ${location.coords.longitude.toFixed(6)}`
-            : "No coordinates available"}
-        </Text>
+        <View style={styles.locationButtonsContainer}>
+          {hardcodedLocations.map((loc, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.locationButton,
+                currentLocationIndex === index && styles.locationButtonActive
+              ]}
+              onPress={() => setHardcodedLocation(index)}
+            >
+              <Text
+                style={[
+                  styles.locationButtonText,
+                  currentLocationIndex === index && styles.locationButtonTextActive
+                ]}
+              >
+                {loc.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.coordinatesCard}>
+          <Text style={styles.coordinatesText}>
+            {location ? (
+              <>
+                <Text style={styles.coordinateLabel}>Selected Location: </Text>
+                <Text style={styles.coordinateValue}>{hardcodedLocations[currentLocationIndex].name}</Text>
+                {'\n'}
+                <Text style={styles.coordinateLabel}>Latitude: </Text>
+                <Text style={styles.coordinateValue}>{location.coords.latitude.toFixed(6)}</Text>
+                {'\n'}
+                <Text style={styles.coordinateLabel}>Longitude: </Text>
+                <Text style={styles.coordinateValue}>{location.coords.longitude.toFixed(6)}</Text>
+              </>
+            ) : (
+              "No coordinates selected"
+            )}
+          </Text>
+        </View>
 
         <TouchableOpacity
           style={[styles.button, (!location || isLoading) && styles.buttonDisabled]}
@@ -185,24 +182,34 @@ export default function App(): React.ReactElement {
           <Text style={styles.buttonText}>Reverse Geocode (Reproduce Bug)</Text>
         </TouchableOpacity>
 
-        {isLoading && <ActivityIndicator style={styles.spinner} size="small" color="#F7FF4D" />}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#F7FF4D" />
+            <Text style={styles.loadingText}>Processing...</Text>
+          </View>
+        )}
 
         {reverseGeocodingError && (
-          <Text style={styles.errorText}>{reverseGeocodingError}</Text>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{reverseGeocodingError}</Text>
+          </View>
         )}
 
         <ScrollView style={styles.addressContainer}>
           {address && address.length > 0 ? (
-            address.map((item, index) => (
-              <View key={index} style={styles.addressItem}>
-                <Text style={styles.addressTitle}>Result {index + 1}</Text>
-                {Object.entries(item).map(([key, value]) => (
-                  <Text key={key} style={styles.addressText}>
-                    {key}: {value !== null ? String(value) : 'N/A'}
-                  </Text>
-                ))}
-              </View>
-            ))
+            <>
+              <Text style={styles.sectionTitle}>Geocoding Results:</Text>
+              {address.map((item, index) => (
+                <View key={index} style={styles.addressItem}>
+                  <Text style={styles.addressTitle}>Result {index + 1}</Text>
+                  {Object.entries(item).map(([key, value]) => (
+                    <Text key={key} style={styles.addressText}>
+                      {key}: {value !== null ? String(value) : 'N/A'}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+            </>
           ) : address ? (
             <Text style={styles.errorText}>No address information found</Text>
           ) : null}
